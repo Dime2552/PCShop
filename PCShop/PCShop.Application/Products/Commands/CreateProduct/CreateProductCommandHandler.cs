@@ -20,6 +20,10 @@ namespace PCShop.Application.Products.Commands.CreateProduct
             // Load image to AWS S3
             var imageUrls = await _imageService.UploadImagesAsync(request.Images, cancellationToken);
 
+            var attributesList = request.Attributes
+                .Select(kvp => new ProductAttributeItem { Key = kvp.Key, Value = kvp.Value })
+                .ToList();
+
             // Create entity
             var product = new Product
             {
@@ -30,7 +34,8 @@ namespace PCShop.Application.Products.Commands.CreateProduct
                 Price = request.Price,
                 StockQuantity = request.StockQuantity,
                 Description = request.Description,
-                ImageUrls = imageUrls
+                ImageUrls = imageUrls,
+                Attributes = attributesList
             };
 
             _context.Products.Add(product);

@@ -8,6 +8,7 @@
         public decimal Price { get; set; }
         public int StockQuantity { get; set; }
         public string? Description { get; set; }
-        public List<IFormFile> Images { get; set; } = new();
+        public string AttributesJson { get; set; } = "{}";
+        public IFormFileCollection Images { get; set; } = null!;
     }
 }

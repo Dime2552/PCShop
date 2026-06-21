@@ -10,6 +10,7 @@ namespace PCShop.Application.Products.Commands.CreateProduct
     decimal Price,
     int StockQuantity,
     string? Description,
-    List<FileUploadDto> Images
+    List<FileUploadDto> Images,
+    Dictionary<string, string> Attributes
 ) : IRequest<Guid>;
 }

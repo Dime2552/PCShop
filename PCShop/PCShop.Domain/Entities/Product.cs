@@ -1,4 +1,7 @@
-﻿namespace PCShop.Domain.Entities
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json;
+
+namespace PCShop.Domain.Entities
 {
     public class Product
     {
@@ -17,8 +20,7 @@
 
         public int StockQuantity { get; set; }
         public List<string> ImageUrls { get; set; } = new();
-        public Dictionary<string, string> Attributes { get; set; } = new();
-
+        public List<ProductAttributeItem> Attributes { get; set; } = new();
         public byte[] RowVersion { get; set; } = Array.Empty<byte>();
 
         public bool IsDeleted { get; set; } = false;
