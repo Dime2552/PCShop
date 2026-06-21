@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="PCShop.Application/PCShop.Application.csproj" />
+  <Project Path="PCShop.Domain/PCShop.Domain.csproj" />
+  <Project Path="PCShop.Infrastructure/PCShop.Infrastructure.csproj" />
+  <Project Path="PCShop.WebApi/PCShop.WebApi.csproj" />
+</Solution>

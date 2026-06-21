@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  mssql-db:
+    image: mcr.microsoft.com/mssql/server:2025-latest
+    container_name: pcshop-sql-server
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=SuperStrongPassword123!
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql-data:/var/opt/mssql
+
+  redis-cache:
+    image: redis:latest
+    container_name: pcshop-redis
+    ports:
+      - "6379:6379"
+
+volumes:
+  mssql-data:
