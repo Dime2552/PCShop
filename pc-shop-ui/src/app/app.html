@@ -1,0 +1,17 @@
+<div class="min-h-screen bg-gray-50 flex flex-col">
+  <!-- Navbar -->
+  <header class="bg-white shadow-sm sticky top-0 z-50">
+    <div class="container mx-auto px-4 h-16 flex items-center justify-between">
+      <div class="font-bold text-2xl text-blue-600 tracking-tight">PC Parts e-Shop</div>
+      <nav class="flex gap-4">
+        <a routerLink="/" class="text-gray-600 hover:text-blue-600 font-medium">Catalog</a>
+        <a class="text-gray-600 hover:text-blue-600 font-medium cursor-pointer">Cart</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-grow container mx-auto px-4 py-8">
+    <router-outlet></router-outlet>
+  </main>
+</div>

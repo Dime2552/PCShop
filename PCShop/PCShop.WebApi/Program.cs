@@ -12,6 +12,18 @@ builder.Host.UseSerilog((context, configuration) =>
     configuration.ReadFrom.Configuration(context.Configuration)
                  .WriteTo.Console());
 
+var corsPolicy = "AllowAngularDevClient";
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(corsPolicy, policy =>
+    {
+        policy.WithOrigins("http://localhost:4200")
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
+});
+
 //-----Services-----
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
@@ -45,6 +57,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors(corsPolicy);
 
 app.UseSerilogRequestLogging();
 

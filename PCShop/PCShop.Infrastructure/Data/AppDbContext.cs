@@ -1,8 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using PCShop.Application.Common.Interfaces;
 using PCShop.Domain.Entities;
-using System.Text.Json;
 
 namespace PCShop.Infrastructure.Data
 {
@@ -31,11 +29,7 @@ namespace PCShop.Infrastructure.Data
                 entity.Property(p => p.Price).HasColumnType("decimal(18,2)");
                 entity.Property(p => p.DiscountPrice).HasColumnType("decimal(18,2)");
                 entity.Property(p => p.RowVersion).IsRowVersion();
-
-                entity.OwnsMany(p => p.Attributes, a =>
-                {
-                    a.ToJson();
-                });
+                entity.OwnsMany(p => p.Attributes, a => { a.ToJson(); });
             });
 
             modelBuilder.Entity<Order>(entity =>
