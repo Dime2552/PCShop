@@ -5,13 +5,16 @@
       <div class="font-bold text-2xl text-blue-600 tracking-tight">PC Parts e-Shop</div>
       <nav class="flex gap-4">
         <a routerLink="/" class="text-gray-600 hover:text-blue-600 font-medium">Catalog</a>
-        <a class="text-gray-600 hover:text-blue-600 font-medium cursor-pointer">Cart</a>
+        <a routerLink="/cart" class="text-gray-600 hover:text-blue-600 font-medium cursor-pointer flex items-center gap-1">
+          <i class="pi pi-shopping-cart"></i>
+          <span class="bg-blue-600 text-white rounded-full px-2 py-0.5 text-xs font-bold">{{ cartItemsCount }}</span>
+        </a>
       </nav>
     </div>
   </header>
 
   <!-- Main Content -->
-  <main class="flex-grow container mx-auto px-4 py-8">
+  <main class="grow container mx-auto px-4 py-8">
     <router-outlet></router-outlet>
   </main>
 </div>

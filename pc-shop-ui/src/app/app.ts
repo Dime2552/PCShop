@@ -1,12 +1,23 @@
-import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, inject, signal } from '@angular/core';
+import { RouterLink, RouterOutlet } from '@angular/router';
+import { CartService } from './core/services/cart.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, RouterLink],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
 export class App {
-  protected readonly title = signal('pc-shop-ui');
+  public cartService = inject(CartService);
+
+  ngOnInit() {
+    this.cartService.loadCart();
+  }
+
+  get cartItemsCount() {
+    const cart = this.cartService.cartState();
+    if (!cart) return 0;
+    return cart.items.reduce((acc, item) => acc + item.quantity, 0);
+  }
 }

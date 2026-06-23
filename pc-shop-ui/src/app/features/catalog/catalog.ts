@@ -8,6 +8,7 @@ import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select'; 
 import { KeyValuePipe } from '@angular/common'; 
+import { CartService } from '../../core/services/cart.service';
 
 @Component({
   selector: 'app-catalog',
@@ -15,9 +16,10 @@ import { KeyValuePipe } from '@angular/common';
   templateUrl: './catalog.html',
   styleUrl: './catalog.css',
 })
-export class Catalog implements OnInit {
+export class CatalogComponent implements OnInit {
   private categoryService = inject(CategoryService);
   private productService = inject(ProductService);
+  private cartService = inject(CartService);
 
   // Signals
   categories = signal<CategoryDto[]>([]);
@@ -95,5 +97,17 @@ export class Catalog implements OnInit {
 
   onSortChange() {
     this.loadProducts(1);
+  }
+
+  addToCart(productId: string) {
+    this.cartService.addToCart(productId, 1).subscribe({
+      next: () => {
+        this.cartService.loadCart();
+        alert('Item added to cart!');
+      },
+      error: (err) => {
+        alert(err.error.detail || 'Error at adding to cart');
+      }
+    });
   }
 }

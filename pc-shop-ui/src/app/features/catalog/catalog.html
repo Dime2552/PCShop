@@ -102,7 +102,7 @@
                   [rounded]="true" 
                   severity="info" 
                   [disabled]="product.stockQuantity === 0"
-                  [title]="product.stockQuantity === 0 ? 'Out of stock' : 'Add to cart'">
+                  (onClick)="addToCart(product.id)">
                 </p-button>
               </div>
             </div>

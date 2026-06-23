@@ -5,6 +5,7 @@ using PCShop.Infrastructure.Data;
 using PCShop.Infrastructure.Services;
 using PCShop.WebApi.Middlewares;
 using Serilog;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,6 +43,14 @@ builder.Services.AddApplication();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddScoped<IAppDbContext>(provider => provider.GetRequiredService<AppDbContext>());
+
+// Redis Configuration
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+{
+    var configuration = ConfigurationOptions.Parse(builder.Configuration.GetConnectionString("Redis") ?? "localhost:6379", true);
+    return ConnectionMultiplexer.Connect(configuration);
+});
+builder.Services.AddScoped<ICartService, RedisCartService>();
 
 // AwsS3
 builder.Services.AddScoped<IImageService, AwsS3Service>();
