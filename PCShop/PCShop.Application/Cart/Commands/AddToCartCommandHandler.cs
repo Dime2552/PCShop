@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
+using PCShop.Application.Common.Exceptions;
 using PCShop.Application.Common.Interfaces;
 using PCShop.Application.Common.Models;
 
@@ -23,7 +24,7 @@ namespace PCShop.Application.Cart.Commands
                 .FirstOrDefaultAsync(p => p.Id == request.ProductId, cancellationToken);
 
             if (product == null)
-                throw new Exception("Product not found.");
+                throw new NotFoundException("Product not found.");
 
             var cartItems = await _cartService.GetCartAsync(request.CartId);
             var existingItem = cartItems.FirstOrDefault(x => x.ProductId == request.ProductId);
@@ -31,14 +32,14 @@ namespace PCShop.Application.Cart.Commands
             if (existingItem != null)
             {
                 if (existingItem.Quantity + request.Quantity > product.StockQuantity)
-                    throw new Exception("Not enough stock available.");
+                    throw new BadRequestException("Not enough stock available.");
 
                 existingItem.Quantity += request.Quantity;
             }
             else
             {
                 if (request.Quantity > product.StockQuantity)
-                    throw new Exception("Not enough stock available.");
+                    throw new BadRequestException("Not enough stock available.");
 
                 cartItems.Add(new RedisCartItem { ProductId = request.ProductId, Quantity = request.Quantity });
             }

@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
+using PCShop.Application.Common.Exceptions;
 using PCShop.Application.Common.Interfaces;
 
 namespace PCShop.Application.Cart.Commands
@@ -31,9 +32,9 @@ namespace PCShop.Application.Cart.Commands
                 .FirstOrDefaultAsync(p => p.Id == request.ProductId, cancellationToken);
 
             if (product == null)
-                throw new Exception("Product not found.");
+                throw new NotFoundException("Product not found.");
             if (request.Quantity > product.StockQuantity)
-                throw new Exception($"Only {product.StockQuantity} items in stock.");
+                throw new BadRequestException($"Only {product.StockQuantity} items in stock.");
 
             var items = await _cartService.GetCartAsync(request.CartId);
             var existingItem = items.FirstOrDefault(x => x.ProductId == request.ProductId);
