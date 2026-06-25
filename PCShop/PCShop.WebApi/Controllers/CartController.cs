@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using PCShop.Application.Cart.Commands;
 using PCShop.Application.Cart.DTOs;
 using PCShop.Application.Cart.Queries;
+using System.Security.Claims;
 
 namespace PCShop.WebApi.Controllers
 {
@@ -17,10 +18,20 @@ namespace PCShop.WebApi.Controllers
             _mediator = mediator;
         }
 
-        private string GetSessionId()
+        private string GetCartId()
         {
+            // Check if user is authenticated
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!string.IsNullOrEmpty(userId))
+            {
+                return $"cart:user:{userId}";
+            }
+
+            // Fallback to guest session
             if (Request.Headers.TryGetValue("x-session-id", out var sessionId))
+            {
                 return $"cart:session:{sessionId}";
+            }
 
             throw new Exception("Session ID is missing");
         }
@@ -28,35 +39,35 @@ namespace PCShop.WebApi.Controllers
         [HttpGet]
         public async Task<ActionResult<CartResponseDto>> GetCart()
         {
-            var result = await _mediator.Send(new GetCartQuery(GetSessionId()));
+            var result = await _mediator.Send(new GetCartQuery(GetCartId()));
             return Ok(result);
         }
 
         [HttpPost("items")]
         public async Task<IActionResult> AddItem([FromBody] AddCartItemRequest request)
         {
-            await _mediator.Send(new AddToCartCommand(GetSessionId(), request.ProductId, request.Quantity));
+            await _mediator.Send(new AddToCartCommand(GetCartId(), request.ProductId, request.Quantity));
             return Ok();
         }
 
         [HttpPut("items/{productId}")]
         public async Task<IActionResult> UpdateQuantity(Guid productId, [FromBody] UpdateQuantityRequest request)
         {
-            await _mediator.Send(new UpdateCartItemQuantityCommand(GetSessionId(), productId, request.Quantity));
+            await _mediator.Send(new UpdateCartItemQuantityCommand(GetCartId(), productId, request.Quantity));
             return Ok();
         }
 
         [HttpDelete("items/{productId}")]
         public async Task<IActionResult> RemoveItem(Guid productId)
         {
-            await _mediator.Send(new RemoveFromCartCommand(GetSessionId(), productId));
+            await _mediator.Send(new RemoveFromCartCommand(GetCartId(), productId));
             return Ok();
         }
 
         [HttpDelete]
         public async Task<IActionResult> ClearCart()
         {
-            await _mediator.Send(new ClearCartCommand(GetSessionId()));
+            await _mediator.Send(new ClearCartCommand(GetCartId()));
             return Ok();
         }
     }

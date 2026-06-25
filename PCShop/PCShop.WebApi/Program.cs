@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using PCShop.Application;
 using PCShop.Application.Common.Interfaces;
 using PCShop.Infrastructure.Data;
@@ -6,6 +8,7 @@ using PCShop.Infrastructure.Services;
 using PCShop.WebApi.Middlewares;
 using Serilog;
 using StackExchange.Redis;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,6 +31,27 @@ builder.Services.AddCors(options =>
 //-----Services-----
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
+
+// Auth Services
+builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
+builder.Services.AddScoped<IJwtProvider, JwtProvider>();
+
+// JWT Authentication
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
+        };
+    });
+builder.Services.AddAuthorization();
 
 // Swagger
 builder.Services.AddEndpointsApiExplorer();
@@ -71,6 +95,7 @@ app.UseCors(corsPolicy);
 
 app.UseSerilogRequestLogging();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

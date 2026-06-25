@@ -2,6 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { CartService } from './core/services/cart.service';
 import { ToastModule } from 'primeng/toast';
+import { AuthService } from './core/services/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -11,6 +12,7 @@ import { ToastModule } from 'primeng/toast';
 })
 export class App {
   public cartService = inject(CartService);
+  public authService = inject(AuthService);
 
   ngOnInit() {
     this.cartService.loadCart();
@@ -20,5 +22,10 @@ export class App {
     const cart = this.cartService.cartState();
     if (!cart) return 0;
     return cart.items.reduce((acc, item) => acc + item.quantity, 0);
+  }
+
+  logout() {
+    this.authService.logout();
+    this.cartService.loadCart();
   }
 }
