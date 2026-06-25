@@ -9,6 +9,7 @@ import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select'; 
 import { KeyValuePipe } from '@angular/common'; 
 import { CartService } from '../../core/services/cart.service';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-catalog',
@@ -20,6 +21,7 @@ export class CatalogComponent implements OnInit {
   private categoryService = inject(CategoryService);
   private productService = inject(ProductService);
   private cartService = inject(CartService);
+  private messageService = inject(MessageService);
 
   // Signals
   categories = signal<CategoryDto[]>([]);
@@ -103,10 +105,19 @@ export class CatalogComponent implements OnInit {
     this.cartService.addToCart(productId, 1).subscribe({
       next: () => {
         this.cartService.loadCart();
-        alert('Item added to cart!');
+        this.messageService.add({ 
+          severity: 'success', 
+          summary: 'Success', 
+          detail: 'Added too cart',
+          life: 3000
+        });
       },
       error: (err) => {
-        alert(err.error.detail || 'Error at adding to cart');
+        this.messageService.add({ 
+          severity: 'error', 
+          summary: 'Error', 
+          detail: err.error?.detail || 'Unable to add item' 
+        });
       }
     });
   }

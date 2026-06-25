@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CartService } from '../../core/services/cart.service';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-cart',
@@ -11,6 +12,7 @@ import { CartService } from '../../core/services/cart.service';
 })
 export class CartComponent {
   cartService = inject(CartService);
+  messageService = inject(MessageService);
 
   increaseQuantity(productId: string, currentQty: number) {
     this.updateQuantity(productId, currentQty + 1);
@@ -25,7 +27,12 @@ export class CartComponent {
   updateQuantity(productId: string, quantity: number) {
     this.cartService.updateQuantity(productId, quantity).subscribe({
       next: () => this.cartService.loadCart(),
-      error: (err) => alert(err.error?.detail || 'Can`t update quantity. Maybe, no more on storage.')
+      error: (err) => { this.messageService.add({ 
+          severity: 'error', 
+          summary: 'Warning', 
+          detail: err.error?.detail || 'Can`t update quantity. Maybe, no more on storage.' 
+        });
+      }
     });
   }
 
@@ -39,6 +46,7 @@ export class CartComponent {
     if (confirm('Clear cart?')) {
       this.cartService.clearCart().subscribe(() => {
         this.cartService.loadCart();
+        this.messageService.add({ severity: 'info', summary: 'Cart', detail: 'Cart cleared' });
       });
     }
   }

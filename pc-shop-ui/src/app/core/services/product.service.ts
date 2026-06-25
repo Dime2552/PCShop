@@ -3,10 +3,13 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ProductDto } from '../models/product.model';
 import { PaginatedList } from '../models/paginated-list.model';
+import { environment } from '../../../environments/environment';
+import th from '@angular/common/locales/th';
 
 @Injectable({ providedIn: 'root' })
 export class ProductService {
   private http = inject(HttpClient);
+  private apiUrl = `${environment.apiUrl}/products`;
 
   getProducts(
     categoryId: number,
@@ -34,10 +37,10 @@ export class ProductService {
       });
     }
 
-    return this.http.get<PaginatedList<ProductDto>>('https://localhost:7120/api/products', { params });
+    return this.http.get<PaginatedList<ProductDto>>(this.apiUrl, { params });
   }
 
   getCategoryFilters(categoryId: number): Observable<Record<string, string[]>> {
-    return this.http.get<Record<string, string[]>>(`https://localhost:7120/api/products/filters/${categoryId}`);
+    return this.http.get<Record<string, string[]>>(`${this.apiUrl}/filters/${categoryId}`);
   }
 }
