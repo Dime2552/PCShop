@@ -22,7 +22,15 @@ namespace PCShop.Application.Products.Queries.GetProducts
             // Dynamic filtering by JSON-column Attributes
             if (request.Filters != null && request.Filters.Any())
             {
-                foreach (var filter in request.Filters)
+                // Handle strongly-typed Brand filter
+                if (request.Filters.TryGetValue("Brand", out var brandValue))
+                {
+                    query = query.Where(p => p.Brand == brandValue);
+                }
+
+                // Handle dynamic JSON attributes filters
+                var jsonFilters = request.Filters.Where(f => f.Key != "Brand");
+                foreach (var filter in jsonFilters)
                 {
                     query = query
                         .AsNoTracking()

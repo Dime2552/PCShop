@@ -35,7 +35,21 @@ namespace PCShop.Application.Categories.Queries.GetCategoryFilters
                 }
             }
 
-            return filters.ToDictionary(k => k.Key, v => v.Value.ToList());
+            var result = filters.ToDictionary(k => k.Key, v => v.Value.ToList());
+
+            var brands = await _context.Products
+                .AsNoTracking()
+                .Where(p => p.CategoryId == request.CategoryId)
+                .Select(p => p.Brand)
+                .Distinct()
+                .ToListAsync(cancellationToken);
+
+            if (brands.Any())
+            {
+                result["Brand"] = brands;
+            }
+
+            return result;
         }
     }
 }
