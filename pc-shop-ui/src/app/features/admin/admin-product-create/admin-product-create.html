@@ -1,0 +1,86 @@
+<div class="max-w-3xl mx-auto bg-white p-8 rounded-xl shadow-sm border border-gray-100">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-gray-800">Add New Product</h1>
+    </div>
+
+    <form (ngSubmit)="onSubmit()" class="flex flex-col gap-6">
+
+        <!-- Basic Info -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="flex flex-col gap-2">
+                <label class="text-sm font-medium text-gray-700">Product Name *</label>
+                <input pInputText [(ngModel)]="product.name" name="name" required class="w-full" />
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <label class="text-sm font-medium text-gray-700">Category *</label>
+                <p-select [options]="categories()" [(ngModel)]="product.categoryId" name="categoryId" optionLabel="name"
+                    optionValue="id" placeholder="Select a Category" styleClass="w-full"></p-select>
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <label class="text-sm font-medium text-gray-700">Brand *</label>
+                <input pInputText [(ngModel)]="product.brand" name="brand" required class="w-full" />
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <label class="text-sm font-medium text-gray-700">Price ($) *</label>
+                <p-inputNumber [(ngModel)]="product.price" name="price" mode="currency" currency="USD" locale="en-US"
+                    styleClass="w-full"></p-inputNumber>
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <label class="text-sm font-medium text-gray-700">Stock Quantity *</label>
+                <p-inputNumber [(ngModel)]="product.stockQuantity" name="stockQuantity" [min]="0"
+                    styleClass="w-full"></p-inputNumber>
+            </div>
+        </div>
+
+        <div class="flex flex-col gap-2">
+            <label class="text-sm font-medium text-gray-700">Description</label>
+            <textarea pTextarea [(ngModel)]="product.description" name="description" rows="4" class="w-full"></textarea>
+        </div>
+
+        <!-- Images -->
+        <div class="p-4 bg-gray-50 border border-gray-200 rounded-lg">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Images (Max 5) *</label>
+            <input type="file" multiple accept="image/*" (change)="onFileSelect($event)"
+                class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
+            @if (selectedFiles.length > 0) {
+            <p class="text-sm text-gray-500 mt-2">{{ selectedFiles.length }} files selected</p>
+            }
+        </div>
+
+        <!-- Dynamic Attributes -->
+        <div class="p-4 border border-gray-200 rounded-lg">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-medium text-gray-800">Specifications (Attributes)</h3>
+                <button type="button" (click)="addAttribute()"
+                    class="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded transition">
+                    <i class="pi pi-plus text-xs mr-1"></i> Add Spec
+                </button>
+            </div>
+
+            <div class="flex flex-col gap-3">
+                @for (attr of attributes; track $index) {
+                <div class="flex gap-2 items-center">
+                    <input pInputText [(ngModel)]="attr.key" name="key_{{$index}}" placeholder="e.g. Memory"
+                        class="w-1/2" />
+                    <input pInputText [(ngModel)]="attr.value" name="value_{{$index}}" placeholder="e.g. 12 GB"
+                        class="w-1/2" />
+                    <button type="button" (click)="removeAttribute($index)" class="text-red-500 hover:text-red-700 p-2">
+                        <i class="pi pi-trash"></i>
+                    </button>
+                </div>
+                }
+                @if (attributes.length === 0) {
+                <p class="text-sm text-gray-500 italic">No specifications added yet.</p>
+                }
+            </div>
+        </div>
+
+        <p-button [label]="isLoading() ? 'Saving...' : 'Create Product'" [disabled]="isLoading()" type="submit"
+            styleClass="w-full mt-4"></p-button>
+
+    </form>
+</div>

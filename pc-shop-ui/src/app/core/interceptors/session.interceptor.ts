@@ -2,7 +2,7 @@ import { HttpInterceptorFn } from '@angular/common/http';
 
 export const sessionInterceptor: HttpInterceptorFn = (req, next) => {
   let sessionId = localStorage.getItem('session_id');
-  
+
   // Generate session ID for guest cart
   if (!sessionId) {
     sessionId = crypto.randomUUID();
