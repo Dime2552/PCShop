@@ -1,0 +1,24 @@
+<nav class="w-72 bg-gray-900 text-white flex flex-col h-screen border-r border-gray-800 rounded-lg">
+  <!-- Logo / Branding -->
+  <div class="p-6 border-b border-gray-800">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center">
+        <i class="pi pi-shopping-cart text-xl"></i>
+      </div>
+      <div>
+        <h1 class="text-lg font-bold leading-tight">PC Shop</h1>
+        <p class="text-xs text-gray-400">Admin Panel</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <ul class="flex flex-col gap-1 px-3">
+    <li>
+      <router-link routerLink="/admin/product/new" class="flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 group">
+        <i class="pi pi-plus-circle text-lg text-gray-400 group-hover:text-white transition-colors"></i>
+        <span class="font-medium text-gray-300 group-hover:text-white transition-colors">Add Product</span>
+      </router-link>
+    </li>
+  </ul>
+</nav>

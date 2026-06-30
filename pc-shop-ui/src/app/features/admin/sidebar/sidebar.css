@@ -1,0 +1,81 @@
+:host {
+  display: block;
+}
+
+nav {
+  width: 288px;
+  background-color: #111827;
+  color: #ffffff;
+  flex-direction: column;
+  height: 100vh;
+  border-right: 1px solid #1f2937;
+  overflow-y: auto;
+}
+
+nav h1 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+nav a {
+  text-decoration: none;
+  color: #ffffff;
+}
+
+nav a:hover {
+  background-color: #1f2937;
+}
+
+nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+nav ul li {
+  margin: 0;
+}
+
+nav ul li + li {
+  margin-top: 4px;
+}
+
+/* Branding section */
+nav .logo-section {
+  padding: 16px 16px 20px;
+  border-bottom: 1px solid #1f2937;
+}
+
+/* Section headers */
+nav ul li span.section-header {
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #6b7280;
+  padding: 8px 12px;
+}
+
+/* Active state for router-link */
+nav a.router-link-active {
+  background-color: #312e81;
+  color: #fff;
+}
+
+/* Icon hover effect */
+nav a i {
+  transition: color 0.2s;
+}
+
+nav a:hover i {
+  color: #fff;
+}
+
+/* Link hover text */
+nav a span {
+  transition: color 0.2s;
+}
+
+nav a:hover span {
+  color: #fff;
+}
