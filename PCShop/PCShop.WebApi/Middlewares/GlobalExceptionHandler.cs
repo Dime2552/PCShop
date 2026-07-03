@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using PCShop.Application.Common.Exceptions;
 
 namespace PCShop.WebApi.Middlewares
@@ -48,6 +49,15 @@ namespace PCShop.WebApi.Middlewares
 
                 problemDetails.Extensions.Add("errors", errors);
                 httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
+            }
+            // Handle Concurrency (Race Condition) Errors (409)
+            else if (exception is DbUpdateConcurrencyException)
+            {
+                problemDetails.Title = "Conflict";
+                problemDetails.Status = StatusCodes.Status409Conflict;
+                problemDetails.Detail = "The product you are trying to purchase was just updated or sold out. Please refresh your cart and try again.";
+
+                httpContext.Response.StatusCode = StatusCodes.Status409Conflict;
             }
             // Handle Business Logic Errors (400)
             else if (exception is BadRequestException badRequestException)
