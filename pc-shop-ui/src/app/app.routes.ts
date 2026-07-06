@@ -5,10 +5,13 @@ import { AuthComponent } from './features/auth/auth';
 import { adminGuard } from './core/guards/admin.guard';
 import { AdminLayoutComponent } from './features/admin/admin-layout/admin-layout';
 import { AdminProductCreate } from './features/admin/admin-product-create/admin-product-create';
+import { CheckoutComponent } from './features/checkout/checkout';
+import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   { path: '', component: CatalogComponent },
   { path: 'cart', component: CartComponent },
+  { path: 'checkout', component: CheckoutComponent, canActivate: [authGuard] },
   { path: 'auth', component: AuthComponent },
   {
     path: 'admin',
