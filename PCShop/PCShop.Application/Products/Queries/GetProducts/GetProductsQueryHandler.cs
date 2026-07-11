@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using PCShop.Application.Common.Interfaces;
 using PCShop.Application.Common.Models;
@@ -38,11 +38,17 @@ namespace PCShop.Application.Products.Queries.GetProducts
                 }
             }
 
+            var now = DateTime.UtcNow;
+
             // Sorting
             query = request.SortBy switch
             {
-                "price_asc" => query.OrderBy(p => p.DiscountPrice ?? p.Price),
-                "price_desc" => query.OrderByDescending(p => p.DiscountPrice ?? p.Price),
+                "price_asc" => query.OrderBy(p => p.DiscountPrice != null && 
+                                                  (p.DiscountStartDate == null || p.DiscountStartDate <= now) && 
+                                                  (p.DiscountEndDate == null || p.DiscountEndDate >= now) ? p.DiscountPrice : p.Price),
+                "price_desc" => query.OrderByDescending(p => p.DiscountPrice != null && 
+                                                  (p.DiscountStartDate == null || p.DiscountStartDate <= now) && 
+                                                  (p.DiscountEndDate == null || p.DiscountEndDate >= now) ? p.DiscountPrice : p.Price),
                 _ => query.OrderBy(p => p.Name)
             };
 
@@ -51,7 +57,7 @@ namespace PCShop.Application.Products.Queries.GetProducts
                 p.Name,
                 p.Brand,
                 p.Price,
-                p.DiscountPrice,
+                p.DiscountPrice != null && (p.DiscountStartDate == null || p.DiscountStartDate <= now) && (p.DiscountEndDate == null || p.DiscountEndDate >= now) ? p.DiscountPrice : null,
                 p.ImageUrls.FirstOrDefault() ?? string.Empty,
                 p.StockQuantity
             ));

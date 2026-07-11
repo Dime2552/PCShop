@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using PCShop.Application.Auth.DTOs;
 using PCShop.Application.Common.Exceptions;
@@ -39,17 +39,29 @@ namespace PCShop.Application.Auth.Commands
                 {
                     var userCart = await _cartService.GetCartAsync(userCartId);
 
+                    var sessionProductIds = sessionCart.Select(x => x.ProductId).ToList();
+                    var productsDict = await _context.Products
+                        .Where(p => sessionProductIds.Contains(p.Id))
+                        .ToDictionaryAsync(p => p.Id, cancellationToken);
+
                     // Merge items: add new ones or update quantities for existing
                     foreach (var item in sessionCart)
                     {
-                        var existingItem = userCart.FirstOrDefault(x => x.ProductId == item.ProductId);
-                        if (existingItem != null)
+                        if (productsDict.TryGetValue(item.ProductId, out var product))
                         {
-                            existingItem.Quantity += item.Quantity;
-                        }
-                        else
-                        {
-                            userCart.Add(item);
+                            var existingItem = userCart.FirstOrDefault(x => x.ProductId == item.ProductId);
+                            var newQuantity = item.Quantity;
+                            
+                            if (existingItem != null)
+                            {
+                                newQuantity += existingItem.Quantity;
+                                existingItem.Quantity = Math.Min(newQuantity, product.StockQuantity);
+                            }
+                            else
+                            {
+                                item.Quantity = Math.Min(newQuantity, product.StockQuantity);
+                                userCart.Add(item);
+                            }
                         }
                     }
 

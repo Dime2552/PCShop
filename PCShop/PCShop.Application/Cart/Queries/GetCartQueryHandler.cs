@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using PCShop.Application.Cart.DTOs;
 using PCShop.Application.Common.Interfaces;
@@ -32,11 +32,16 @@ namespace PCShop.Application.Cart.Queries
 
             var responseItems = new List<CartItemResponseDto>();
 
+            var now = DateTime.UtcNow;
+
             foreach (var item in redisItems)
             {
                 if (products.TryGetValue(item.ProductId, out var product))
                 {
-                    var price = product.DiscountPrice ?? product.Price;
+                    var isDiscountActive = product.DiscountPrice.HasValue &&
+                                           (!product.DiscountStartDate.HasValue || product.DiscountStartDate <= now) &&
+                                           (!product.DiscountEndDate.HasValue || product.DiscountEndDate >= now);
+                    var price = isDiscountActive ? product.DiscountPrice.Value : product.Price;
                     responseItems.Add(new CartItemResponseDto(
                         product.Id,
                         product.Name,

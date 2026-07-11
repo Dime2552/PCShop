@@ -22,6 +22,11 @@ namespace PCShop.Application.Orders.Commands.UpdateOrderStatus
                 throw new NotFoundException($"Order with id {request.OrderId} was not found.");
             }
 
+            if (order.Status == PCShop.Domain.Enums.OrderStatus.Paid)
+            {
+                return;
+            }
+
             order.Status = request.Status;
 
             await _context.SaveChangesAsync(cancellationToken);

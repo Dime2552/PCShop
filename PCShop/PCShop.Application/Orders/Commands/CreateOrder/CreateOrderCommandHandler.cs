@@ -48,6 +48,8 @@ namespace PCShop.Application.Orders.Commands.CreateOrder
 
             decimal totalProductsAmount = 0;
 
+            var now = DateTime.UtcNow;
+
             // Process each item
             foreach (var cartItem in cartItems)
             {
@@ -61,7 +63,10 @@ namespace PCShop.Application.Orders.Commands.CreateOrder
                 product.StockQuantity -= cartItem.Quantity;
 
                 // Ignoring any prices passed from the client
-                var price = product.DiscountPrice ?? product.Price;
+                var isDiscountActive = product.DiscountPrice.HasValue &&
+                                       (!product.DiscountStartDate.HasValue || product.DiscountStartDate <= now) &&
+                                       (!product.DiscountEndDate.HasValue || product.DiscountEndDate >= now);
+                var price = isDiscountActive ? product.DiscountPrice.Value : product.Price;
 
                 order.Items.Add(new OrderItem
                 {
