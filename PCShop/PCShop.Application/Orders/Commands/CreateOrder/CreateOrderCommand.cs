@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using PCShop.Domain.ValueObjects;
 
 namespace PCShop.Application.Orders.Commands.CreateOrder
@@ -7,6 +7,8 @@ namespace PCShop.Application.Orders.Commands.CreateOrder
         string CartId,
         Guid UserId,
         Address ShippingAddress,
-        string ShippingMethod
-    ) : IRequest<Guid>;
+        string ShippingMethod,
+        string SuccessUrl,
+        string CancelUrl
+    ) : IRequest<CreateOrderResponse>;
 }

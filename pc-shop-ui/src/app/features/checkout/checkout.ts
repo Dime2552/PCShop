@@ -55,14 +55,14 @@ export class CheckoutComponent {
     };
 
     this.orderService.createOrder(payload).subscribe({
-      next: (orderId) => {
-        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Order placed successfully!' });
+      next: (response) => {
+        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Redirecting to payment...' });
 
         // Reload cart
         this.cartService.loadCart();
 
-        // !!!Will redirect to checkout later!!!
-        this.router.navigate(['/']);
+        // Redirect to Stripe Checkout
+        window.location.href = response.checkoutUrl;
       },
       error: (err) => {
         this.isLoading.set(false);

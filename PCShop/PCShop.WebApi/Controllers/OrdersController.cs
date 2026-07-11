@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PCShop.Application.Orders.Commands.CreateOrder;
@@ -13,14 +13,16 @@ namespace PCShop.WebApi.Controllers
     public class OrdersController : ControllerBase
     {
         private readonly IMediator _mediator;
+        private readonly IConfiguration _configuration;
 
-        public OrdersController(IMediator mediator)
+        public OrdersController(IMediator mediator, IConfiguration configuration)
         {
             _mediator = mediator;
+            _configuration = configuration;
         }
 
         [HttpPost]
-        public async Task<ActionResult<Guid>> CreateOrder([FromBody] CreateOrderRequest request)
+        public async Task<ActionResult<CreateOrderResponse>> CreateOrder([FromBody] CreateOrderRequest request)
         {
             var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
@@ -29,16 +31,20 @@ namespace PCShop.WebApi.Controllers
             // At this point, the cart is strictly tied to the user's ID
             var cartId = $"cart:user:{userId}";
 
+            var clientUrl = _configuration["ClientUrl"] ?? "http://localhost:4200";
+
             var command = new CreateOrderCommand(
                 cartId,
                 userId,
                 request.ShippingAddress,
-                request.ShippingMethod
+                request.ShippingMethod,
+                $"{clientUrl}/checkout/success",
+                $"{clientUrl}/checkout/cancel"
             );
 
-            var orderId = await _mediator.Send(command);
+            var response = await _mediator.Send(command);
 
-            return Ok(orderId);
+            return Ok(response);
         }
     }
 

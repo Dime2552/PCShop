@@ -14,12 +14,17 @@ export interface CreateOrderRequest {
     shippingMethod: string;
 }
 
+export interface CreateOrderResponse {
+    orderId: string;
+    checkoutUrl: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class OrderService {
     private http = inject(HttpClient);
     private apiUrl = `${environment.apiUrl}/orders`;
 
     createOrder(data: CreateOrderRequest) {
-        return this.http.post<string>(this.apiUrl, data);
+        return this.http.post<CreateOrderResponse>(this.apiUrl, data);
     }
 }

@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using PCShop.Application.Common.Exceptions;
 using PCShop.Application.Common.Interfaces;
@@ -7,20 +7,22 @@ using PCShop.Domain.Enums;
 
 namespace PCShop.Application.Orders.Commands.CreateOrder
 {
-    public class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, Guid>
+    public class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, CreateOrderResponse>
     {
         private readonly IAppDbContext _context;
         private readonly ICartService _cartService;
         private readonly IShippingService _shippingService;
+        private readonly IPaymentService _paymentService;
 
-        public CreateOrderCommandHandler(IAppDbContext context, ICartService cartService, IShippingService shippingService)
+        public CreateOrderCommandHandler(IAppDbContext context, ICartService cartService, IShippingService shippingService, IPaymentService paymentService)
         {
             _context = context;
             _cartService = cartService;
             _shippingService = shippingService;
+            _paymentService = paymentService;
         }
 
-        public async Task<Guid> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
+        public async Task<CreateOrderResponse> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
         {
             // Get Cart from Redis
             var cartItems = await _cartService.GetCartAsync(request.CartId);
@@ -79,6 +81,10 @@ namespace PCShop.Application.Orders.Commands.CreateOrder
             order.ShippingCost = shippingCost;
             order.TotalAmount = totalProductsAmount + shippingCost;
 
+            // Generate Stripe Checkout Session
+            var (sessionId, checkoutUrl) = await _paymentService.CreateCheckoutSessionAsync(order, request.SuccessUrl, request.CancelUrl, cancellationToken);
+            order.StripeSessionId = sessionId;
+
             _context.Orders.Add(order);
 
             // Save to database. 
@@ -87,7 +93,7 @@ namespace PCShop.Application.Orders.Commands.CreateOrder
             // Clear Redis cart after successful order creation
             await _cartService.DeleteCartAsync(request.CartId);
 
-            return order.Id;
+            return new CreateOrderResponse(order.Id, checkoutUrl);
         }
     }
 }

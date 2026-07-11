@@ -8,7 +8,9 @@ using PCShop.Infrastructure.Services;
 using PCShop.WebApi.Middlewares;
 using Serilog;
 using StackExchange.Redis;
+using Stripe;
 using System.Text;
+using PCShop.Infrastructure.Settings;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -81,6 +83,11 @@ builder.Services.AddScoped<ICartService, RedisCartService>();
 
 // AwsS3
 builder.Services.AddScoped<IImageService, AwsS3Service>();
+
+// Stripe
+builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("StripeSettings"));
+builder.Services.AddScoped<IPaymentService, StripePaymentService>();
+StripeConfiguration.ApiKey = builder.Configuration.GetSection("StripeSettings")["SecretKey"];
 
 var app = builder.Build();
 
