@@ -11,6 +11,7 @@ using StackExchange.Redis;
 using Stripe;
 using System.Text;
 using PCShop.Infrastructure.Settings;
+using PCShop.WebApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -88,6 +89,9 @@ builder.Services.AddScoped<IImageService, AwsS3Service>();
 builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("StripeSettings"));
 builder.Services.AddScoped<IPaymentService, StripePaymentService>();
 StripeConfiguration.ApiKey = builder.Configuration.GetSection("StripeSettings")["SecretKey"];
+
+// Background Services
+builder.Services.AddHostedService<OrderCleanupService>();
 
 var app = builder.Build();
 
