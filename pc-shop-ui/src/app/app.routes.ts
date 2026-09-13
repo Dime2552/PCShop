@@ -4,7 +4,6 @@ import { CartComponent } from './features/cart/cart';
 import { AuthComponent } from './features/auth/auth';
 import { adminGuard } from './core/guards/admin.guard';
 import { AdminLayoutComponent } from './features/admin/admin-layout/admin-layout';
-import { AdminProductCreate } from './features/admin/admin-product-create/admin-product-create';
 import { CheckoutComponent } from './features/checkout/checkout';
 import { CheckoutSuccessComponent } from './features/checkout/checkout-success';
 import { CheckoutCancelComponent } from './features/checkout/checkout-cancel';
@@ -27,8 +26,9 @@ export const routes: Routes = [
     component: AdminLayoutComponent,
     canActivate: [adminGuard],
     children: [
-      { path: 'product/new', component: AdminProductCreate },
-      { path: '', redirectTo: 'product/new', pathMatch: 'full' }
+      { path: 'orders', loadComponent: () => import('./features/admin/admin-orders/admin-order-list').then(m => m.AdminOrderListComponent) },
+      { path: 'product/new', loadComponent: () => import('./features/admin/admin-product-create/admin-product-create').then(m => m.AdminProductCreate) },
+      { path: '', redirectTo: 'orders', pathMatch: 'full' }
     ]
   },
   { path: '**', redirectTo: '' }

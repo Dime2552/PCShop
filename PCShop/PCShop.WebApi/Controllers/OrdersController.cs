@@ -2,8 +2,10 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PCShop.Application.Orders.Commands.CreateOrder;
+using PCShop.Application.Orders.Commands.UpdateOrderTracking;
 using PCShop.Application.Orders.DTOs;
 using PCShop.Application.Orders.Queries.GetMyOrders;
+using PCShop.Application.Orders.Queries.GetOrders;
 using PCShop.Domain.ValueObjects;
 using System.Security.Claims;
 
@@ -60,7 +62,24 @@ namespace PCShop.WebApi.Controllers
 
             return Ok(orders);
         }
+
+        [HttpGet("all")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<List<AdminOrderDto>>> GetAllOrders([FromQuery] int? pageNumber, [FromQuery] int? pageSize)
+        {
+            var orders = await _mediator.Send(new GetOrdersQuery(pageNumber, pageSize));
+            return Ok(orders);
+        }
+
+        [HttpPatch("{id:guid}/tracking")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateOrderTracking([FromRoute] Guid id, [FromBody] UpdateOrderTrackingRequest request)
+        {
+            await _mediator.Send(new UpdateOrderTrackingCommand(id, request.TrackingNumber));
+            return Ok(new { message = "Tracking number updated successfully" });
+        }
     }
 
     public record CreateOrderRequest(Address ShippingAddress, string ShippingMethod);
+    public record UpdateOrderTrackingRequest(string TrackingNumber);
 }

@@ -15,4 +15,17 @@ namespace PCShop.Application.Orders.DTOs
         DateTime CreatedAt,
         List<OrderItemDto> Items
     );
+
+    public record AdminOrderDto(
+        Guid OrderId,
+        decimal TotalAmount,
+        decimal ShippingCost,
+        string Status,
+        string? TrackingNumber,
+        DateTime CreatedAt,
+        Guid UserId,
+        string CustomerEmail,
+        string CustomerName,
+        List<OrderItemDto> Items
+    );
 }

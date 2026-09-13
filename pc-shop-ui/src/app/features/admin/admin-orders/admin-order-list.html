@@ -1,0 +1,203 @@
+<div class="max-w-7xl mx-auto space-y-6">
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-6 rounded-xl shadow-xs border border-gray-100">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900 tracking-tight flex items-center gap-2">
+        <i class="pi pi-box text-indigo-600"></i>
+        Order Management
+      </h1>
+      <p class="text-sm text-gray-500 mt-1">Manage and track all customer orders, fulfillment, and shipping</p>
+    </div>
+    <div class="flex items-center gap-3">
+      <span class="text-xs font-semibold px-3 py-1.5 bg-gray-100 text-gray-700 rounded-full">
+        Total Orders: {{ orders().length }}
+      </span>
+      <button 
+        type="button"
+        (click)="loadOrders()" 
+        class="inline-flex items-center gap-1.5 px-3.5 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition cursor-pointer"
+        [disabled]="isLoading()"
+      >
+        <i class="pi pi-refresh" [class.animate-spin]="isLoading()"></i>
+        <span>Refresh</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  @if (isLoading()) {
+  <div class="bg-white p-12 rounded-xl shadow-xs border border-gray-100 flex flex-col items-center justify-center space-y-3">
+    <i class="pi pi-spin pi-spinner text-3xl text-indigo-600"></i>
+    <p class="text-sm text-gray-500 font-medium">Loading orders...</p>
+  </div>
+  }
+
+  <!-- Empty State -->
+  @else if (orders().length === 0) {
+  <div class="bg-white p-12 rounded-xl shadow-xs border border-gray-100 text-center space-y-4">
+    <div class="w-16 h-16 mx-auto bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center text-2xl">
+      <i class="pi pi-shopping-bag"></i>
+    </div>
+    <div class="space-y-1">
+      <h3 class="text-lg font-semibold text-gray-900">No orders found</h3>
+      <p class="text-sm text-gray-500 max-w-md mx-auto">
+        When customers place orders in the store, they will appear here.
+      </p>
+    </div>
+  </div>
+  }
+
+  <!-- Orders Table -->
+  @else {
+  <div class="bg-white rounded-xl shadow-xs border border-gray-100 overflow-hidden">
+    <p-table 
+      [value]="orders()" 
+      dataKey="orderId" 
+      [tableStyle]="{ 'min-width': '60rem' }"
+      styleClass="p-datatable-striped"
+    >
+      <ng-template #header pTemplate="header">
+        <tr class="bg-gray-50 text-gray-600 text-xs font-semibold uppercase tracking-wider">
+          <th class="py-3.5 px-4 text-left">Date</th>
+          <th class="py-3.5 px-4 text-left">Customer</th>
+          <th class="py-3.5 px-4 text-left">Total</th>
+          <th class="py-3.5 px-4 text-left">Status</th>
+          <th class="py-3.5 px-4 text-left">Tracking Number</th>
+          <th class="py-3.5 px-4 text-right">Actions</th>
+        </tr>
+      </ng-template>
+
+      <ng-template #body pTemplate="body" let-order>
+        <tr class="hover:bg-gray-50/75 transition border-b border-gray-100 text-sm">
+          <!-- Date -->
+          <td class="py-3.5 px-4 text-gray-800 font-medium whitespace-nowrap">
+            {{ order.createdAt | date:'medium' }}
+          </td>
+
+          <!-- Customer -->
+          <td class="py-3.5 px-4 whitespace-nowrap">
+            <div class="font-medium text-gray-900">
+              {{ order.customerName || 'Customer' }}
+            </div>
+            <div class="text-xs text-gray-500 font-normal">
+              {{ order.customerEmail || 'No email' }}
+            </div>
+          </td>
+
+          <!-- Total -->
+          <td class="py-3.5 px-4 font-bold text-gray-900 whitespace-nowrap">
+            {{ order.totalAmount | currency:'USD' }}
+          </td>
+
+          <!-- Status -->
+          <td class="py-3.5 px-4 whitespace-nowrap">
+            <p-tag [value]="order.status" [severity]="getStatusSeverity(order.status)"></p-tag>
+          </td>
+
+          <!-- Tracking Number -->
+          <td class="py-3.5 px-4 whitespace-nowrap">
+            @if (order.trackingNumber) {
+              <span class="inline-flex items-center gap-1.5 font-mono text-xs bg-gray-100 text-gray-800 px-2.5 py-1 rounded-md border border-gray-200">
+                <i class="pi pi-compass text-indigo-500 text-[11px]"></i>
+                {{ order.trackingNumber }}
+              </span>
+            } @else {
+              <span class="text-gray-400 font-mono text-sm">-</span>
+            }
+          </td>
+
+          <!-- Actions -->
+          <td class="py-3.5 px-4 text-right whitespace-nowrap">
+            @if (isPaid(order.status)) {
+              <p-button 
+                label="Ship Order" 
+                icon="pi pi-send" 
+                size="small" 
+                severity="success"
+                (onClick)="openShipDialog(order)"
+              ></p-button>
+            } @else if (order.status?.toLowerCase() === 'shipped') {
+              <span class="inline-flex items-center gap-1 text-xs text-blue-600 font-medium bg-blue-50 px-2 py-0.5 rounded">
+                <i class="pi pi-check text-[10px]"></i> Fulfilled
+              </span>
+            } @else {
+              <span class="text-xs text-gray-400">-</span>
+            }
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+  }
+</div>
+
+<!-- Ship Order Dialog -->
+<p-dialog 
+  header="Ship Order" 
+  [visible]="isShipDialogOpen()" 
+  (visibleChange)="onVisibleChange($event)"
+  [modal]="true" 
+  [style]="{ width: '480px' }"
+  [draggable]="false"
+  [resizable]="false"
+  [closable]="!isSubmitting()"
+>
+  <div class="space-y-4 py-2">
+    @if (selectedOrder(); as order) {
+      <div class="bg-gray-50 p-3.5 rounded-lg border border-gray-200 text-xs space-y-1.5 text-gray-600">
+        <div class="flex justify-between">
+          <span class="font-medium text-gray-500">Order ID:</span>
+          <span class="font-mono text-gray-800">{{ order.orderId }}</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="font-medium text-gray-500">Customer:</span>
+          <span class="font-semibold text-gray-800">{{ order.customerName || 'Customer' }} ({{ order.customerEmail }})</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="font-medium text-gray-500">Total Amount:</span>
+          <span class="font-bold text-gray-900">{{ order.totalAmount | currency:'USD' }}</span>
+        </div>
+      </div>
+    }
+
+    <div class="space-y-1.5">
+      <label for="trackingNumberInput" class="block text-sm font-medium text-gray-700">
+        Tracking Number <span class="text-red-500">*</span>
+      </label>
+      <input 
+        pInputText 
+        id="trackingNumberInput" 
+        type="text" 
+        [ngModel]="trackingNumber()" 
+        (ngModelChange)="onTrackingNumberChange($event)"
+        placeholder="Enter tracking number (e.g., TRK-987654321)" 
+        class="w-full"
+        [disabled]="isSubmitting()"
+        (keydown.enter)="submitShipOrder()"
+      />
+      @if (trackingError()) {
+        <p class="text-xs text-red-500 mt-1">{{ trackingError() }}</p>
+      }
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="flex items-center justify-end gap-2 pt-2">
+      <p-button 
+        label="Cancel" 
+        icon="pi pi-times" 
+        severity="secondary" 
+        [outlined]="true" 
+        (onClick)="closeShipDialog()" 
+        [disabled]="isSubmitting()"
+      ></p-button>
+      <p-button 
+        label="Confirm Shipment" 
+        icon="pi pi-check" 
+        severity="success" 
+        (onClick)="submitShipOrder()" 
+        [loading]="isSubmitting()"
+      ></p-button>
+    </div>
+  </ng-template>
+</p-dialog>

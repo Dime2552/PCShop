@@ -15,10 +15,16 @@
   <!-- Navigation -->
   <ul class="flex flex-col gap-1 px-3">
     <li>
-      <router-link routerLink="/admin/product/new" class="flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 group">
+      <a routerLink="/admin/orders" routerLinkActive="router-link-active" class="flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 group">
+        <i class="pi pi-box text-lg text-gray-400 group-hover:text-white transition-colors"></i>
+        <span class="font-medium text-gray-300 group-hover:text-white transition-colors">Orders</span>
+      </a>
+    </li>
+    <li>
+      <a routerLink="/admin/product/new" routerLinkActive="router-link-active" class="flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 group">
         <i class="pi pi-plus-circle text-lg text-gray-400 group-hover:text-white transition-colors"></i>
         <span class="font-medium text-gray-300 group-hover:text-white transition-colors">Add Product</span>
-      </router-link>
+      </a>
     </li>
   </ul>
 </nav>
