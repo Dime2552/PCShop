@@ -32,6 +32,14 @@
           </a>
           }
 
+          <!-- My Orders LINK -->
+          <a routerLink="/profile/orders"
+            class="text-sm font-medium text-gray-700 hover:text-blue-600 transition flex items-center gap-1.5 px-2.5 py-1 rounded-md hover:bg-gray-100"
+            title="View my orders">
+            <i class="pi pi-box"></i>
+            <span>My Orders</span>
+          </a>
+
           <span class="text-sm font-medium text-gray-700">Hi, {{ user.firstName }}</span>
           <button (click)="logout()" class="text-sm text-red-500 hover:text-red-700 font-medium" title="Logout">
             <i class="pi pi-sign-out"></i>

@@ -2,6 +2,8 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PCShop.Application.Orders.Commands.CreateOrder;
+using PCShop.Application.Orders.DTOs;
+using PCShop.Application.Orders.Queries.GetMyOrders;
 using PCShop.Domain.ValueObjects;
 using System.Security.Claims;
 
@@ -45,6 +47,18 @@ namespace PCShop.WebApi.Controllers
             var response = await _mediator.Send(command);
 
             return Ok(response);
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<List<OrderDto>>> GetMyOrders()
+        {
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
+                return Unauthorized();
+
+            var orders = await _mediator.Send(new GetMyOrdersQuery(userId));
+
+            return Ok(orders);
         }
     }
 

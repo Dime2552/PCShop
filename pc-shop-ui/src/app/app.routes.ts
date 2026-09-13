@@ -16,6 +16,11 @@ export const routes: Routes = [
   { path: 'checkout', component: CheckoutComponent, canActivate: [authGuard] },
   { path: 'checkout/success', component: CheckoutSuccessComponent },
   { path: 'checkout/cancel', component: CheckoutCancelComponent },
+  {
+    path: 'profile/orders',
+    loadComponent: () => import('./features/profile/my-orders/my-orders').then(m => m.MyOrdersComponent),
+    canActivate: [authGuard]
+  },
   { path: 'auth', component: AuthComponent },
   {
     path: 'admin',
