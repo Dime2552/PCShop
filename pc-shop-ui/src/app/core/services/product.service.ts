@@ -2,9 +2,9 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ProductDto } from '../models/product.model';
+import { ReviewDto } from '../models/review.model';
 import { PaginatedList } from '../models/paginated-list.model';
 import { environment } from '../../../environments/environment';
-import th from '@angular/common/locales/th';
 
 @Injectable({ providedIn: 'root' })
 export class ProductService {
@@ -38,6 +38,18 @@ export class ProductService {
     }
 
     return this.http.get<PaginatedList<ProductDto>>(this.apiUrl, { params });
+  }
+
+  getProductById(id: string): Observable<ProductDto> {
+    return this.http.get<ProductDto>(`${this.apiUrl}/${id}`);
+  }
+
+  getReviews(productId: string): Observable<ReviewDto[]> {
+    return this.http.get<ReviewDto[]>(`${this.apiUrl}/${productId}/reviews`);
+  }
+
+  addReview(productId: string, rating: number, comment: string): Observable<string> {
+    return this.http.post<string>(`${this.apiUrl}/${productId}/reviews`, { rating, comment });
   }
 
   getCategoryFilters(categoryId: number): Observable<Record<string, string[]>> {

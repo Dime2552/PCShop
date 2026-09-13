@@ -11,6 +11,10 @@ import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   { path: '', component: CatalogComponent },
+  {
+    path: 'product/:id',
+    loadComponent: () => import('./features/product-details/product-details').then(m => m.ProductDetailsComponent)
+  },
   { path: 'cart', component: CartComponent },
   { path: 'checkout', component: CheckoutComponent, canActivate: [authGuard] },
   { path: 'checkout/success', component: CheckoutSuccessComponent },

@@ -1,4 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { CategoryDto } from '../../core/models/category.model';
 import { PaginatedList } from '../../core/models/paginated-list.model';
 import { ProductDto } from '../../core/models/product.model';
@@ -13,7 +14,7 @@ import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-catalog',
-  imports: [ButtonModule, SelectModule, FormsModule, KeyValuePipe],
+  imports: [ButtonModule, SelectModule, FormsModule, KeyValuePipe, RouterLink],
   templateUrl: './catalog.html',
   styleUrl: './catalog.css',
 })

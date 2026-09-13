@@ -1,4 +1,6 @@
-﻿namespace PCShop.Application.Products.DTOs
+using PCShop.Domain.Entities;
+
+namespace PCShop.Application.Products.DTOs
 {
     public record ProductDto(
         Guid Id,
@@ -7,5 +9,8 @@
         decimal Price,
         decimal? DiscountPrice,
         string MainImageUrl,
-        int StockQuantity);
+        int StockQuantity,
+        string? Description = null,
+        List<string>? ImageUrls = null,
+        List<ProductAttributeItem>? Attributes = null);
 }
