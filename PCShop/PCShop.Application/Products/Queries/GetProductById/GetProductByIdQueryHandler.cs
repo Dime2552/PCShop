@@ -43,7 +43,10 @@ namespace PCShop.Application.Products.Queries.GetProductById
                 product.StockQuantity,
                 product.Description,
                 product.ImageUrls,
-                product.Attributes
+                product.Attributes,
+                product.DiscountStartDate,
+                product.DiscountEndDate,
+                product.DiscountPrice
             );
         }
     }

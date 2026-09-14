@@ -1,0 +1,395 @@
+<div class="max-w-7xl mx-auto space-y-6">
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-6 rounded-xl shadow-xs border border-gray-100">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900 tracking-tight flex items-center gap-2">
+        <i class="pi pi-list text-indigo-600"></i>
+        Product Management
+      </h1>
+      <p class="text-sm text-gray-500 mt-1">Manage catalog products, update prices, manage stock, and schedule discounts</p>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-3">
+      <!-- Category Filter -->
+      <div class="w-48">
+        <p-select 
+          [options]="categoryOptions()" 
+          [ngModel]="selectedCategoryId()" 
+          (ngModelChange)="onCategoryChange($event)"
+          optionLabel="label" 
+          optionValue="value" 
+          placeholder="All Categories"
+          class="w-full"
+        ></p-select>
+      </div>
+
+      <span class="text-xs font-semibold px-3 py-1.5 bg-gray-100 text-gray-700 rounded-full">
+        Total: {{ products().length }}
+      </span>
+
+      <a 
+        routerLink="/admin/product/new" 
+        class="inline-flex items-center gap-1.5 px-3.5 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition shadow-xs cursor-pointer"
+      >
+        <i class="pi pi-plus text-xs"></i>
+        <span>Add Product</span>
+      </a>
+
+      <button 
+        type="button"
+        (click)="loadProducts()" 
+        class="inline-flex items-center gap-1.5 px-3.5 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition cursor-pointer"
+        [disabled]="isLoading()"
+      >
+        <i class="pi pi-refresh" [class.animate-spin]="isLoading()"></i>
+        <span>Refresh</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  @if (isLoading()) {
+  <div class="bg-white p-12 rounded-xl shadow-xs border border-gray-100 flex flex-col items-center justify-center space-y-3">
+    <i class="pi pi-spin pi-spinner text-3xl text-indigo-600"></i>
+    <p class="text-sm text-gray-500 font-medium">Loading products...</p>
+  </div>
+  }
+
+  <!-- Empty State -->
+  @else if (products().length === 0) {
+  <div class="bg-white p-12 rounded-xl shadow-xs border border-gray-100 text-center space-y-4">
+    <div class="w-16 h-16 mx-auto bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center text-2xl">
+      <i class="pi pi-box"></i>
+    </div>
+    <div class="space-y-1">
+      <h3 class="text-lg font-semibold text-gray-900">No products found</h3>
+      <p class="text-sm text-gray-500 max-w-md mx-auto">
+        No products match the selected criteria. You can create a new product using the button above.
+      </p>
+    </div>
+  </div>
+  }
+
+  <!-- Products Table -->
+  @else {
+  <div class="bg-white rounded-xl shadow-xs border border-gray-100 overflow-hidden">
+    <p-table 
+      [value]="products()" 
+      dataKey="id" 
+      [paginator]="true"
+      [rows]="10"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      [tableStyle]="{ 'min-width': '65rem' }"
+      styleClass="p-datatable-striped"
+    >
+      <ng-template #header pTemplate="header">
+        <tr class="bg-gray-50 text-gray-600 text-xs font-semibold uppercase tracking-wider">
+          <th class="py-3.5 px-4 text-left">Product</th>
+          <th class="py-3.5 px-4 text-left">Price</th>
+          <th class="py-3.5 px-4 text-left">Discount Status</th>
+          <th class="py-3.5 px-4 text-left">Stock</th>
+          <th class="py-3.5 px-4 text-right">Actions</th>
+        </tr>
+      </ng-template>
+
+      <ng-template #body pTemplate="body" let-product>
+        <tr class="hover:bg-gray-50/75 transition border-b border-gray-100 text-sm">
+          <!-- Product Name & Image -->
+          <td class="py-3.5 px-4">
+            <div class="flex items-center gap-3">
+              @if (product.mainImageUrl) {
+                <img [src]="product.mainImageUrl" [alt]="product.name" class="w-12 h-12 object-cover rounded-lg border border-gray-200" />
+              } @else {
+                <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400">
+                  <i class="pi pi-image text-xl"></i>
+                </div>
+              }
+              <div class="min-w-0 max-w-xs sm:max-w-sm">
+                <div class="font-semibold text-gray-900 truncate" [title]="product.name">
+                  {{ product.name }}
+                </div>
+                <div class="text-xs text-gray-500 font-medium">
+                  {{ product.brand }}
+                </div>
+              </div>
+            </div>
+          </td>
+
+          <!-- Price & Discount -->
+          <td class="py-3.5 px-4 whitespace-nowrap">
+            @if (product.discountPrice) {
+              <div class="flex items-baseline gap-2">
+                <span class="font-bold text-emerald-600 text-base">
+                  {{ product.discountPrice | currency:'USD' }}
+                </span>
+                <span class="text-xs line-through text-gray-400">
+                  {{ product.price | currency:'USD' }}
+                </span>
+              </div>
+            } @else {
+              <span class="font-bold text-gray-900">
+                {{ product.price | currency:'USD' }}
+              </span>
+            }
+          </td>
+
+          <!-- Discount Status / Dates -->
+          <td class="py-3.5 px-4 whitespace-nowrap">
+            @if (product.rawDiscountPrice || product.discountPrice) {
+              <div class="space-y-0.5">
+                <div class="flex items-center gap-1.5">
+                  <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    {{ (product.rawDiscountPrice ?? product.discountPrice) | currency:'USD' }}
+                  </span>
+                  @if (hasActiveDiscount(product)) {
+                    <p-tag value="Active" severity="success"></p-tag>
+                  } @else {
+                    <p-tag value="Scheduled" severity="info"></p-tag>
+                  }
+                </div>
+                @if (product.discountStartDate || product.discountEndDate) {
+                  <div class="text-[11px] text-gray-500">
+                    {{ product.discountStartDate ? (product.discountStartDate | date:'shortDate') : 'Now' }} - 
+                    {{ product.discountEndDate ? (product.discountEndDate | date:'shortDate') : 'Ongoing' }}
+                  </div>
+                }
+              </div>
+            } @else {
+              <span class="text-xs text-gray-400">No discount</span>
+            }
+          </td>
+
+          <!-- Stock -->
+          <td class="py-3.5 px-4 whitespace-nowrap">
+            @if (product.stockQuantity === 0) {
+              <span class="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-md bg-red-50 text-red-700 border border-red-200">
+                <i class="pi pi-times-circle text-[10px]"></i> Out of Stock
+              </span>
+            } @else if (product.stockQuantity <= 5) {
+              <span class="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-md bg-amber-50 text-amber-700 border border-amber-200">
+                <i class="pi pi-exclamation-triangle text-[10px]"></i> {{ product.stockQuantity }} left
+              </span>
+            } @else {
+              <span class="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200">
+                <i class="pi pi-check-circle text-[10px]"></i> {{ product.stockQuantity }} in stock
+              </span>
+            }
+          </td>
+
+          <!-- Actions -->
+          <td class="py-3.5 px-4 text-right whitespace-nowrap">
+            <div class="inline-flex items-center gap-2">
+              <p-button 
+                label="Edit" 
+                icon="pi pi-pencil" 
+                size="small" 
+                severity="secondary"
+                [outlined]="true"
+                (onClick)="openEditDialog(product)"
+              ></p-button>
+
+              <p-button 
+                label="Delete" 
+                icon="pi pi-trash" 
+                size="small" 
+                severity="danger"
+                [outlined]="true"
+                (onClick)="openDeleteDialog(product)"
+              ></p-button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+  }
+</div>
+
+<!-- Edit Product Dialog -->
+<p-dialog 
+  [header]="'Edit Product: ' + (selectedProduct()?.name || '')" 
+  [visible]="isEditDialogOpen()" 
+  (visibleChange)="onEditVisibleChange($event)"
+  [modal]="true" 
+  [style]="{ width: '560px' }"
+  [draggable]="false"
+  [resizable]="false"
+  [closable]="!isSubmitting()"
+>
+  <div class="space-y-4 py-2">
+    @if (selectedProduct(); as product) {
+      <div class="bg-gray-50 p-3.5 rounded-lg border border-gray-200 text-xs space-y-1 text-gray-600">
+        <div class="flex justify-between">
+          <span class="font-medium text-gray-500">Brand:</span>
+          <span class="font-semibold text-gray-800">{{ product.brand }}</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="font-medium text-gray-500">Product ID:</span>
+          <span class="font-mono text-gray-800">{{ product.id }}</span>
+        </div>
+      </div>
+    }
+
+    <!-- Regular Price & Stock Quantity Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div class="space-y-1.5">
+        <label for="editPriceInput" class="block text-sm font-medium text-gray-700">
+          Regular Price ($) <span class="text-red-500">*</span>
+        </label>
+        <p-inputNumber 
+          id="editPriceInput"
+          [ngModel]="editPrice()" 
+          (ngModelChange)="editPrice.set($event)"
+          mode="currency" 
+          currency="USD" 
+          locale="en-US"
+          [min]="0.01"
+          class="w-full"
+          [disabled]="isSubmitting()"
+        ></p-inputNumber>
+      </div>
+
+      <div class="space-y-1.5">
+        <label for="editStockInput" class="block text-sm font-medium text-gray-700">
+          Stock Quantity <span class="text-red-500">*</span>
+        </label>
+        <p-inputNumber 
+          id="editStockInput"
+          [ngModel]="editStockQuantity()" 
+          (ngModelChange)="editStockQuantity.set($event)"
+          [min]="0"
+          [showButtons]="true"
+          class="w-full"
+          [disabled]="isSubmitting()"
+        ></p-inputNumber>
+      </div>
+    </div>
+
+    <!-- Discount Section -->
+    <div class="pt-2 border-t border-gray-100 space-y-4">
+      <div class="flex items-center justify-between">
+        <h4 class="text-sm font-semibold text-gray-900">Discount Settings</h4>
+        <span class="text-xs text-gray-400">Optional</span>
+      </div>
+
+      <div class="space-y-1.5">
+        <label for="editDiscountPriceInput" class="block text-sm font-medium text-gray-700">
+          Discount Price ($)
+        </label>
+        <p-inputNumber 
+          id="editDiscountPriceInput"
+          [ngModel]="editDiscountPrice()" 
+          (ngModelChange)="editDiscountPrice.set($event)"
+          mode="currency" 
+          currency="USD" 
+          locale="en-US"
+          [min]="0"
+          placeholder="Leave empty for no discount"
+          class="w-full"
+          [disabled]="isSubmitting()"
+        ></p-inputNumber>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="space-y-1.5">
+          <label for="editStartDate" class="block text-xs font-medium text-gray-600">
+            Discount Start Date
+          </label>
+          <input 
+            id="editStartDate"
+            type="datetime-local" 
+            [ngModel]="editDiscountStartDate()" 
+            (ngModelChange)="editDiscountStartDate.set($event)"
+            class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            [disabled]="isSubmitting()"
+          />
+        </div>
+
+        <div class="space-y-1.5">
+          <label for="editEndDate" class="block text-xs font-medium text-gray-600">
+            Discount End Date
+          </label>
+          <input 
+            id="editEndDate"
+            type="datetime-local" 
+            [ngModel]="editDiscountEndDate()" 
+            (ngModelChange)="editDiscountEndDate.set($event)"
+            class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            [disabled]="isSubmitting()"
+          />
+        </div>
+      </div>
+    </div>
+
+    @if (editError()) {
+      <div class="p-3 bg-red-50 border border-red-200 rounded-lg text-xs text-red-700 font-medium">
+        {{ editError() }}
+      </div>
+    }
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="flex items-center justify-end gap-2 pt-2">
+      <p-button 
+        label="Cancel" 
+        icon="pi pi-times" 
+        severity="secondary" 
+        [outlined]="true" 
+        (onClick)="closeEditDialog()" 
+        [disabled]="isSubmitting()"
+      ></p-button>
+      <p-button 
+        label="Save Changes" 
+        icon="pi pi-check" 
+        severity="primary" 
+        (onClick)="submitEditProduct()" 
+        [loading]="isSubmitting()"
+      ></p-button>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<!-- Delete Product Confirmation Dialog -->
+<p-dialog 
+  header="Delete Product" 
+  [visible]="isDeleteDialogOpen()" 
+  (visibleChange)="onDeleteVisibleChange($event)"
+  [modal]="true" 
+  [style]="{ width: '450px' }"
+  [draggable]="false"
+  [resizable]="false"
+  [closable]="!isDeleting()"
+>
+  <div class="space-y-4 py-2">
+    <div class="flex items-start gap-3">
+      <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-600 shrink-0">
+        <i class="pi pi-exclamation-triangle text-lg"></i>
+      </div>
+      <div class="space-y-1">
+        <h4 class="text-sm font-semibold text-gray-900">Are you sure you want to delete this product?</h4>
+        <p class="text-xs text-gray-500">
+          This product (<span class="font-semibold text-gray-700">{{ productToDelete()?.name }}</span>) will be removed from customer listings and the catalog.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="flex items-center justify-end gap-2 pt-2">
+      <p-button 
+        label="Cancel" 
+        severity="secondary" 
+        [outlined]="true" 
+        (onClick)="closeDeleteDialog()" 
+        [disabled]="isDeleting()"
+      ></p-button>
+      <p-button 
+        label="Delete" 
+        icon="pi pi-trash" 
+        severity="danger" 
+        (onClick)="confirmDeleteProduct()" 
+        [loading]="isDeleting()"
+      ></p-button>
+    </div>
+  </ng-template>
+</p-dialog>

@@ -14,4 +14,15 @@ export interface ProductDto {
   description?: string;
   imageUrls?: string[];
   attributes?: ProductAttributeItem[] | Record<string, string>;
+  discountStartDate?: string;
+  discountEndDate?: string;
+  rawDiscountPrice?: number;
+}
+
+export interface UpdateProductStockAndPriceRequest {
+  price: number;
+  discountPrice?: number | null;
+  discountStartDate?: string | null;
+  discountEndDate?: string | null;
+  stockQuantity: number;
 }

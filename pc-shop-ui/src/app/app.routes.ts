@@ -31,6 +31,7 @@ export const routes: Routes = [
     canActivate: [adminGuard],
     children: [
       { path: 'orders', loadComponent: () => import('./features/admin/admin-orders/admin-order-list').then(m => m.AdminOrderListComponent) },
+      { path: 'products', loadComponent: () => import('./features/admin/admin-products/admin-products').then(m => m.AdminProductsComponent) },
       { path: 'product/new', loadComponent: () => import('./features/admin/admin-product-create/admin-product-create').then(m => m.AdminProductCreate) },
       { path: '', redirectTo: 'orders', pathMatch: 'full' }
     ]

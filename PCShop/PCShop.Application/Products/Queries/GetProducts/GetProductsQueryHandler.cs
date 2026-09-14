@@ -17,7 +17,12 @@ namespace PCShop.Application.Products.Queries.GetProducts
 
         public async Task<PaginatedList<ProductDto>> Handle(GetProductsQuery request, CancellationToken cancellationToken)
         {
-            var query = _context.Products.Where(p => p.CategoryId == request.CategoryId).AsQueryable();
+            var query = _context.Products.AsQueryable();
+
+            if (request.CategoryId.HasValue && request.CategoryId.Value > 0)
+            {
+                query = query.Where(p => p.CategoryId == request.CategoryId.Value);
+            }
 
             // Dynamic filtering by JSON-column Attributes
             if (request.Filters != null && request.Filters.Any())
@@ -59,7 +64,13 @@ namespace PCShop.Application.Products.Queries.GetProducts
                 p.Price,
                 p.DiscountPrice != null && (p.DiscountStartDate == null || p.DiscountStartDate <= now) && (p.DiscountEndDate == null || p.DiscountEndDate >= now) ? p.DiscountPrice : null,
                 p.ImageUrls.FirstOrDefault() ?? string.Empty,
-                p.StockQuantity
+                p.StockQuantity,
+                null,
+                null,
+                null,
+                p.DiscountStartDate,
+                p.DiscountEndDate,
+                p.DiscountPrice
             ));
 
             return await PaginatedList<ProductDto>.CreateAsync(projectedQuery, request.PageNumber, request.PageSize);

@@ -12,5 +12,8 @@ namespace PCShop.Application.Products.DTOs
         int StockQuantity,
         string? Description = null,
         List<string>? ImageUrls = null,
-        List<ProductAttributeItem>? Attributes = null);
+        List<ProductAttributeItem>? Attributes = null,
+        DateTime? DiscountStartDate = null,
+        DateTime? DiscountEndDate = null,
+        decimal? RawDiscountPrice = null);
 }

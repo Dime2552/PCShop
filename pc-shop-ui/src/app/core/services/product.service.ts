@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ProductDto } from '../models/product.model';
+import { ProductDto, UpdateProductStockAndPriceRequest } from '../models/product.model';
 import { ReviewDto } from '../models/review.model';
 import { PaginatedList } from '../models/paginated-list.model';
 import { environment } from '../../../environments/environment';
@@ -12,7 +12,7 @@ export class ProductService {
   private apiUrl = `${environment.apiUrl}/products`;
 
   getProducts(
-    categoryId: number,
+    categoryId?: number,
     pageNumber: number = 1,
     pageSize: number = 10,
     sortBy?: string,
@@ -20,9 +20,12 @@ export class ProductService {
   ): Observable<PaginatedList<ProductDto>> {
     
     let params = new HttpParams()
-      .set('CategoryId', categoryId.toString())
       .set('PageNumber', pageNumber.toString())
       .set('PageSize', pageSize.toString());
+
+    if (categoryId !== undefined && categoryId !== null && categoryId > 0) {
+      params = params.set('CategoryId', categoryId.toString());
+    }
 
     if (sortBy) {
       params = params.set('SortBy', sortBy);
@@ -54,5 +57,13 @@ export class ProductService {
 
   getCategoryFilters(categoryId: number): Observable<Record<string, string[]>> {
     return this.http.get<Record<string, string[]>>(`${this.apiUrl}/filters/${categoryId}`);
+  }
+
+  updateProductStockAndPrice(id: string, request: UpdateProductStockAndPriceRequest): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/${id}/stock-price`, request);
+  }
+
+  deleteProduct(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 }

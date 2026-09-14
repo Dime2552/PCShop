@@ -5,6 +5,8 @@ using PCShop.Application.Categories.Queries.GetCategoryFilters;
 using PCShop.Application.Common.Interfaces;
 using PCShop.Application.Common.Models;
 using PCShop.Application.Products.Commands.CreateProduct;
+using PCShop.Application.Products.Commands.UpdateProductStockAndPrice;
+using PCShop.Application.Products.Commands.DeleteProduct;
 using PCShop.Application.Products.DTOs;
 using PCShop.Application.Products.Queries.GetProductById;
 using PCShop.Application.Products.Queries.GetProducts;
@@ -103,6 +105,32 @@ namespace PCShop.WebApi.Controllers
         {
             var result = await _mediator.Send(new GetCategoryFiltersQuery(categoryId));
             return Ok(result);
+        }
+
+        [HttpPut("{id:guid}/stock-price")]
+        [HttpPatch("{id:guid}/stock-price")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateProductStockAndPrice(Guid id, [FromBody] UpdateProductStockAndPriceRequest request)
+        {
+            var command = new UpdateProductStockAndPriceCommand(
+                id,
+                request.Price,
+                request.DiscountPrice,
+                request.DiscountStartDate,
+                request.DiscountEndDate,
+                request.StockQuantity
+            );
+
+            await _mediator.Send(command);
+            return Ok(new { message = "Product stock and price updated successfully" });
+        }
+
+        [HttpDelete("{id:guid}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeleteProduct(Guid id)
+        {
+            await _mediator.Send(new DeleteProductCommand(id));
+            return Ok(new { message = "Product deleted successfully" });
         }
     }
 }
